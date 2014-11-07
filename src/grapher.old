@@ -1,0 +1,136 @@
+#pragma once
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+namespace dislin{
+	#include <dislin.h>
+}
+
+namespace grapher {
+
+//	template<typename T>
+//	void plot(const std::vector<T> &x, const std::vector<T> &y){
+void plot(const std::vector<float> &x, const std::vector<float> &y){
+
+	const auto N = x.size();
+
+	const auto Xmin = x[0];
+	const auto Xmax = x[N-1];
+	const auto Xstep = (Xmax - Xmin)/8.0;
+
+	const auto Ymin = *min_element(y.begin(),y.end());
+	const auto Ymax = *max_element(y.begin(),y.end());
+	const auto Ystep = (Ymax - Ymin)/8.0;
+
+	// set format to tiff and set filename
+	dislin::metafl("TIFF");
+	dislin::setfil("TestPlot.tiff");
+
+	// set white background
+	dislin::scrmod("REVERSE");
+
+	// set pagesize
+	dislin::winsiz(1600,1200);
+
+	dislin::disini();
+
+	// set font
+	dislin::complx();
+
+	// set title
+	dislin::titlin("TestPlot",4);
+
+	// set axes names
+	dislin::name("Time(s)","X");
+	dislin::name("Amplitude","Y");
+
+	// set grid
+	dislin::graf(Xmin,Xmax,Xmin,Xstep,Ymin,Ymax,Ymin,Ystep);
+	dislin::grid(1,1);
+
+	// make title
+	dislin::title();
+
+	// plot curve
+	dislin::setrgb(0,0,1);
+	dislin::curve(x.data(),y.data(),N);
+
+	// close dislin
+	dislin::disfin();
+}
+
+//template<typename T>
+//void imagesc(const std::vector<T> &x, const std::vector<T> &y, const std::vector<T> &z){
+void imagesc(const std::vector<float> &x, const std::vector<float> &y, const std::vector<float> &z){
+
+	const auto NumCols = x.size();
+	const auto NumRows = y.size();
+
+	const auto Xmin = x[0];
+	const auto Xmax = x[NumCols-1];
+	const auto Xlen = (Xmax - Xmin);
+
+	const auto Ymin = y[0];
+	const auto Ymax = y[NumRows-1];
+	const auto Ylen = (Ymax - Ymin);
+
+	const auto Zmin = *min_element(z.begin(),z.end());
+	const auto Zmax = *max_element(z.begin(),z.end());
+	const auto Zlen = (Zmax - Zmin);
+
+	const auto AspectRatio = NumRows/(float)NumCols;
+
+	const auto GraphWidth = 3200;
+	const auto GraphHeight = GraphWidth*AspectRatio;
+
+	const auto NumStepsXAxisLabels = 8;
+	const auto NumStepsYAxisLabels = 4;
+	const auto NumStepsCAxisLabels = 4;
+
+	const auto Xstep = Xlen/NumStepsXAxisLabels;
+	const auto Ystep = Ylen/NumStepsYAxisLabels;
+	const auto Zstep = Zlen/NumStepsCAxisLabels;
+
+	// set format to tiff and set filename
+	dislin::metafl("TIFF");
+	dislin::setfil("TestImage.tiff");
+
+	// set white background
+	dislin::scrmod("REVERSE");
+
+	//set pagesize
+	dislin::page(2*GraphWidth,2*GraphHeight);
+	dislin::winsiz(GraphWidth,GraphHeight);
+
+	// initialize DISLIN
+	dislin::disini();
+
+	// set font
+	dislin::complx();
+
+	// set title
+	dislin::titlin("Test Image",4);
+
+	// set axes labels
+	dislin::name("Time(s)","X");
+	dislin::name("Offset(m)","Y");
+	dislin::name("Amplitude","Z");
+
+	// set resolution
+	dislin::autres(NumCols,NumRows);
+
+	// draw axes
+	dislin::graf3(Xmin,Xmax,Xmin,Xstep,Ymin,Ymax,Ymin,Ystep,Zmin,Zmax,Zmin,Zstep);
+
+	// draw image
+	dislin::crvmat(z.data(),NumCols,NumRows,1,1);
+
+	// draw title
+	dislin::title();
+
+	// write image and close program
+	dislin::disfin();
+}
+
+} // grapher
